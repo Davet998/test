@@ -18,3 +18,6 @@ import pandas
 
 df3 = pandas.read_json("http://pythonhow.com/supermarkets.json")
 print(df3)
+
+import geopy
+dir(geopy)
