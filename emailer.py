@@ -27,7 +27,7 @@ except FileNotFoundError as err:
 print(emails)
 
 
-#schedule.txt
+#Read schedule.txt
 try:
     schedule_file = open('schedule.txt' ,'r')
     schedule = schedule_file.read()

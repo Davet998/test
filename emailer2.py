@@ -1,4 +1,5 @@
 import requests
+import smtplib
 
 def get_emails():
   emails = {}
@@ -12,7 +13,7 @@ def get_emails():
   except FileNotFoundError as err:
       print(err)
 
-  return (emails)
+  return emails
 
 def get_schedule():
   try:
@@ -21,7 +22,7 @@ def get_schedule():
   except FileNotFoundError as err:
       print(err)
 
-  return (schedule)
+  return schedule
 
 
 
@@ -30,8 +31,6 @@ def get_weather_forecast():
     appid = appid_file.read()
     appid = appid.strip()
     #print(appid)
-
-
     url = 'http://api.openweathermap.org/data/2.5/weather?q=London,uk&units=metric&appid=' + appid
     weather_request = requests.get(url)
     weather_json = weather_request.json()
@@ -44,7 +43,34 @@ def get_weather_forecast():
     #print(temp_max))
     forecast = 'The weather now is ' + description + ' with a minimum temperature of '
     forecast += str(temp_min) + ' a high of ' + str(temp_max) + ' degrees C.'
-    print(forecast)
+    return forecast
+
+def send_emails(emails, schedule, forecast):
+    # Connect to SMTP Server
+    server = smtplib.SMTP('smtp.gmail.com', '587')
+    # Start TLS
+    server.starttls()
+
+    email_cred = open('email.txt', 'r')
+    for line in email_cred:
+        (from_email, email_password) = line.split(',')
+
+    #print(from_email)
+    #print(email_password)
+
+    # Login
+    server.login(from_email, email_password)
+    #send email
+    for to_email, name in emails.items():
+        # Build message
+        message = 'Subject: Latest from Python!\n'
+        message += 'Hi ' + name + '!\n\n'
+        message += forecast + '\n\n'
+        message += schedule
+
+        server.sendmail(from_email, to_email, message)
+
+    server.quit()
 
 def main():
       emails = get_emails()
@@ -52,7 +78,7 @@ def main():
       schedule = get_schedule()
       print(schedule)
       forecast = get_weather_forecast()
-
-
+      print(forecast)
+      send_emails(emails, schedule, forecast)
 
 main()
